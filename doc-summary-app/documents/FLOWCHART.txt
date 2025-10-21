@@ -1,0 +1,331 @@
+DOCUMENT SUMMARY APPLICATION - FLOWCHART
+========================================
+
+MAIN APPLICATION FLOW:
+======================
+
+┌─────────────────┐
+│   User Starts   │
+│   Application   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load AI Models │
+│  (BART/Pegasus) │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display UI     │
+│  (Streamlit)    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Uploads   │
+│  PDF Document   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate File  │
+│  (Size/Format)  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract Text   │
+│  (PyMuPDF)      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean Text     │
+│  (Regex/NLTK)   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Text     │
+│  Quality        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Selects   │
+│  Summary Type   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Summary        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Results        │
+└─────────────────┘
+
+PDF PROCESSING FLOW:
+====================
+
+┌─────────────────┐
+│  PDF File       │
+│  Upload         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Open PDF with  │
+│  PyMuPDF        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Iterate Through│
+│  Pages          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract Text   │
+│  from Each Page │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Combine All    │
+│  Text Content   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean Text     │
+│  (Remove LaTeX, │
+│   Normalize)    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return Clean   │
+│  Text           │
+└─────────────────┘
+
+SUMMARIZATION FLOW:
+===================
+
+┌─────────────────┐
+│  Clean Text     │
+│  Input          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Text     │
+│  Length         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Text Length    │
+│  > 1000 words?  │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Split  │ │ Process │
+│  into   │ │ Directly│
+│ Chunks  │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Process │ │ Generate│
+│ Each    │ │ Summary │
+│ Chunk   │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Combine │ │ Display │
+│ Partial │ │ Results │
+│Summaries│ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Final   │ │ End     │
+│Summary  │ │         │
+└────┬────┘ └─────────┘
+     │
+     ▼
+┌─────────┐
+│ Display │
+│ Results │
+└─────────┘
+
+AI MODEL SELECTION FLOW:
+========================
+
+┌─────────────────┐
+│  Start Summary  │
+│  Generation     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Try BART Model │
+│  (Primary)      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  BART Model     │
+│  Available?     │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Use    │ │  Try    │
+│ BART    │ │ Pegasus │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Generate│ │ Pegasus │
+│Summary  │ │Available│
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────┴─────┐
+│ Display │ │           │
+│ Results │ │           │
+└─────────┘ ▼           ▼
+         ┌─────────┐ ┌─────────┐
+         │  Yes    │ │   No    │
+         │  Use    │ │  Use    │
+         │ Pegasus │ │ Simple  │
+         └────┬────┘ │Summary  │
+              │      └────┬────┘
+              ▼           │
+         ┌─────────┐      │
+         │ Generate│      │
+         │Summary  │      │
+         └────┬────┘      │
+              │           │
+              ▼           ▼
+         ┌─────────┐ ┌─────────┐
+         │ Display │ │ Display │
+         │ Results │ │ Results │
+         └─────────┘ └─────────┘
+
+ERROR HANDLING FLOW:
+====================
+
+┌─────────────────┐
+│  Process        │
+│  Operation      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Operation      │
+│  Successful?    │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Continue│ │ Log     │
+│ Normal  │ │ Error   │
+│ Flow    │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Check   │
+│ Results │ │ Fallback│
+└─────────┘ │ Option  │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────────┐
+            │ Fallback│
+            │Available│
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────┴─────┐
+            │           │
+            ▼           ▼
+        ┌─────────┐ ┌─────────┐
+        │  Yes    │ │   No    │
+        │  Use    │ │ Display │
+        │Fallback │ │ Error   │
+        └────┬────┘ │ Message │
+             │      └─────────┘
+             ▼
+        ┌─────────┐
+        │ Continue│
+        │ Process │
+        └────┬────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Display │
+        │ Results │
+        └─────────┘
+
+TEXT CLEANING FLOW:
+===================
+
+┌─────────────────┐
+│  Raw Text       │
+│  from PDF       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Remove LaTeX   │
+│  Commands       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Normalize      │
+│  Whitespace     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Remove Special │
+│  Characters     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate Text  │
+│  Quality        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return Clean   │
+│  Text           │
+└─────────────────┘
+
+This flowchart provides a comprehensive visual representation of the Document Summary Application's processing flow, including main application flow, PDF processing, summarization, AI model selection, error handling, and text cleaning processes.
