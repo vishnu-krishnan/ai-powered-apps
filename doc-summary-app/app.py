@@ -4,6 +4,9 @@ from transformers import pipeline
 import re
 import nltk
 from collections import Counter
+from docx import Document
+import io
+import os
 
 # Load summarization model with better configuration
 @st.cache_resource
@@ -35,6 +38,55 @@ def extract_text_from_pdf(file):
     for page in pdf_file:
         text += page.get_text()
     return clean_text(text)
+
+# Extract text from Word document
+def extract_text_from_docx(file):
+    try:
+        doc = Document(file)
+        text = ""
+        for paragraph in doc.paragraphs:
+            text += paragraph.text + "\n"
+        return clean_text(text)
+    except Exception as e:
+        st.error(f"Error reading Word document: {str(e)}")
+        return ""
+
+# Extract text from plain text file
+def extract_text_from_txt(file):
+    try:
+        # Try different encodings
+        encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+        for encoding in encodings:
+            try:
+                file.seek(0)  # Reset file pointer
+                text = file.read().decode(encoding)
+                return clean_text(text)
+            except UnicodeDecodeError:
+                continue
+        # If all encodings fail, try with errors='ignore'
+        file.seek(0)
+        text = file.read().decode('utf-8', errors='ignore')
+        return clean_text(text)
+    except Exception as e:
+        st.error(f"Error reading text file: {str(e)}")
+        return ""
+
+# Universal text extraction function
+def extract_text_from_file(file):
+    """Extract text from various file types"""
+    file_type = file.type.lower()
+    file_name = file.name.lower()
+    
+    if file_type == "application/pdf" or file_name.endswith('.pdf'):
+        return extract_text_from_pdf(file)
+    elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or file_name.endswith('.docx'):
+        return extract_text_from_docx(file)
+    elif file_type == "text/plain" or file_name.endswith(('.txt', '.md', '.csv')):
+        return extract_text_from_txt(file)
+    else:
+        # Try to read as text file for unknown types
+        st.warning(f"⚠️ Unknown file type: {file_type}. Attempting to read as text file...")
+        return extract_text_from_txt(file)
 
 # Split text into manageable chunks
 def split_into_chunks(text, max_tokens=400):
@@ -117,11 +169,18 @@ def basic_sentence_extraction(text, max_sentences=3):
 # Streamlit App UI
 st.title("📄 Document Summarization Tool")
 
-uploaded_file = st.file_uploader("Upload a PDF document", type=["pdf"])
+uploaded_file = st.file_uploader(
+    "Upload a document", 
+    type=["pdf", "txt", "docx", "md", "csv"],
+    help="Supported formats: PDF, TXT, DOCX, MD, CSV"
+)
 
 if uploaded_file:
-    with st.spinner("📄 Extracting text from PDF..."):
-        text = extract_text_from_pdf(uploaded_file)
+    # Show file information
+    st.info(f"📁 **File:** {uploaded_file.name} ({uploaded_file.type})")
+    
+    with st.spinner("📄 Extracting text from document..."):
+        text = extract_text_from_file(uploaded_file)
 
     st.subheader("📃 Extracted Document Text")
     with st.expander("Show extracted text"):

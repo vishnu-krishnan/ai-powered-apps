@@ -2,9 +2,6 @@ GLOBAL NEWS TRACKER - LEARNING LOG
 ==================================
 
 LEARNING SESSION: Global News Tracker Development
-DATE: [Current Date]
-DURATION: [Development Period]
-PARTICIPANTS: [Development Team]
 
 TOPICS LEARNED:
 ==============

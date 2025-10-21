@@ -2,9 +2,6 @@ MULTIMODAL ASSISTANT - LEARNING LOG
 ===================================
 
 LEARNING SESSION: Multimodal Assistant Development
-DATE: [Current Date]
-DURATION: [Development Period]
-PARTICIPANTS: [Development Team]
 
 TOPICS LEARNED:
 ==============

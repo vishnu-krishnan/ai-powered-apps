@@ -2,9 +2,6 @@ DOCUMENT SUMMARY APPLICATION - LEARNING LOG
 ===========================================
 
 LEARNING SESSION: Document Summary Application Development
-DATE: [Current Date]
-DURATION: [Development Period]
-PARTICIPANTS: [Development Team]
 
 TOPICS LEARNED:
 ==============
@@ -99,6 +96,24 @@ TOPICS LEARNED:
      * Added configurable chunk sizes and overlaps
      * Created memory-efficient processing pipelines
 
+7. MULTI-FORMAT DOCUMENT SUPPORT (NEW FEATURE)
+   - Learned: Universal document processing across different file types
+   - Key Insights:
+     * Different file formats require specialized extraction methods
+     * Text encoding varies significantly between file types
+     * File type detection is crucial for proper processing
+   - Challenges Faced:
+     * Port conflicts when running multiple Streamlit apps
+     * Text encoding issues with various file formats
+     * File type detection inconsistencies
+     * Virtual environment dependency management
+   - Solutions Applied:
+     * Implemented universal file extraction function
+     * Added multiple encoding support (UTF-8, Latin-1, CP1252, ISO-8859-1)
+     * Created file type detection based on MIME type and extension
+     * Added graceful fallback for unknown file types
+     * Implemented proper port management for multiple apps
+
 ISSUES FACED AND SOLUTIONS:
 ===========================
 
@@ -131,6 +146,30 @@ ISSUES FACED AND SOLUTIONS:
    - Root Cause: Network restrictions or permission issues
    - Solution: Created fallback text processing without NLTK
    - Learning: Minimize external dependencies for better reliability
+
+6. PORT CONFLICTS AND APP MANAGEMENT (NEW)
+   - Issue: Multiple Streamlit apps trying to use same port (8502)
+   - Root Cause: User accessing wrong app due to port conflicts
+   - Solution: Implemented proper port management and process identification
+   - Learning: Always verify which app is running on which port
+
+7. FILE TYPE RESTRICTIONS (NEW)
+   - Issue: App only supported PDF files, rejected text files
+   - Root Cause: Hardcoded file type restrictions in uploader
+   - Solution: Expanded supported file types and implemented universal extraction
+   - Learning: User requirements can change - build flexible systems
+
+8. TEXT ENCODING CHALLENGES (NEW)
+   - Issue: Text files with different encodings causing extraction failures
+   - Root Cause: Single encoding assumption (UTF-8 only)
+   - Solution: Implemented multiple encoding detection and fallback
+   - Learning: Text files can have various encodings - handle gracefully
+
+9. DEPENDENCY MANAGEMENT (NEW)
+   - Issue: Virtual environment pip commands failing
+   - Root Cause: Externally managed Python environment restrictions
+   - Solution: Used python3 -m pip instead of direct pip commands
+   - Learning: System Python management can affect virtual environments
 
 BEST PRACTICES DISCOVERED:
 ==========================
@@ -165,11 +204,25 @@ BEST PRACTICES DISCOVERED:
    - Monitor memory usage
    - Optimize model loading and inference
 
+6. MULTI-FORMAT SUPPORT (NEW)
+   - Implement universal file extraction functions
+   - Support multiple text encodings
+   - Provide clear file type feedback to users
+   - Handle unknown file types gracefully
+   - Use proper MIME type detection
+
+7. PORT AND PROCESS MANAGEMENT (NEW)
+   - Use unique ports for different applications
+   - Verify which app is running on which port
+   - Implement proper process identification
+   - Kill conflicting processes before starting new ones
+   - Document port assignments clearly
+
 FUTURE IMPROVEMENTS IDENTIFIED:
 ==============================
 
 1. TECHNICAL ENHANCEMENTS
-   - Add support for more document formats (DOCX, TXT)
+   - ✅ COMPLETED: Add support for more document formats (DOCX, TXT, MD, CSV)
    - Implement OCR for image-based PDFs
    - Add multi-language support
    - Optimize model inference speed
@@ -220,4 +273,111 @@ LESSONS LEARNED:
    - User guides improve adoption
    - Technical documentation aids troubleshooting
 
-This learning log captures the key insights, challenges, and solutions discovered during the development of the Document Summary Application, providing valuable knowledge for future projects and improvements.
+DEVELOPMENT SESSION: MULTI-FORMAT SUPPORT IMPLEMENTATION
+========================================================
+DATE: Current Session
+DURATION: Real-time development and testing
+FOCUS: Expanding document support beyond PDF files
+
+SPECIFIC LEARNING CURVE:
+========================
+
+1. USER REQUIREMENT EVOLUTION
+   - Initial State: App only supported PDF files
+   - User Feedback: "I need the application should be compatible with every document types"
+   - Challenge: Complete rewrite of file handling system
+   - Learning: User requirements can change dramatically - build flexible architectures
+
+2. PORT CONFLICT RESOLUTION
+   - Issue: User accessing LLM chat app instead of doc summary app
+   - Root Cause: Multiple apps using same port (8502)
+   - Solution Process:
+     * Identified conflicting process (PID 146646)
+     * Killed wrong process
+     * Started doc summary app on port 8503
+     * Verified correct app was running
+   - Learning: Always verify which application is actually running
+
+3. FILE TYPE DETECTION IMPLEMENTATION
+   - Challenge: Supporting multiple file types with different extraction methods
+   - Solution: Created universal extraction function with type detection
+   - Key Implementation:
+     * MIME type detection
+     * File extension fallback
+     * Specialized extraction for each format
+   - Learning: File type detection requires both MIME type and extension checking
+
+4. TEXT ENCODING COMPLEXITY
+   - Challenge: Text files can have various encodings
+   - Solution: Implemented multiple encoding detection
+   - Supported Encodings: UTF-8, Latin-1, CP1252, ISO-8859-1
+   - Fallback: UTF-8 with errors='ignore'
+   - Learning: Text encoding is more complex than initially assumed
+
+5. DEPENDENCY MANAGEMENT CHALLENGES
+   - Issue: Virtual environment pip commands failing
+   - Error: "externally-managed-environment"
+   - Solution: Used `python3 -m pip` instead of direct pip
+   - Learning: System Python management affects virtual environments
+
+6. UI/UX IMPROVEMENTS
+   - Added file information display
+   - Updated supported file types in uploader
+   - Improved error messages for unsupported files
+   - Learning: User feedback is crucial for multi-format support
+
+TECHNICAL IMPLEMENTATION DETAILS:
+==================================
+
+1. NEW DEPENDENCIES ADDED:
+   - python-docx: For Word document processing
+   - pandas: For data handling (already installed)
+
+2. CODE STRUCTURE CHANGES:
+   - Added extract_text_from_docx() function
+   - Added extract_text_from_txt() function
+   - Created universal extract_text_from_file() function
+   - Updated file uploader to support multiple types
+   - Enhanced UI with file information display
+
+3. ERROR HANDLING IMPROVEMENTS:
+   - Multiple encoding detection
+   - Graceful fallback for unknown file types
+   - Clear error messages for each file type
+   - Warning messages for unsupported formats
+
+4. TESTING APPROACH:
+   - Tested with various file types
+   - Verified port management
+   - Confirmed dependency installation
+   - Validated UI changes
+
+KEY INSIGHTS FROM THIS SESSION:
+================================
+
+1. FLEXIBILITY IS CRITICAL
+   - User requirements can change unexpectedly
+   - Build systems that can adapt to new requirements
+   - Don't hardcode assumptions about file types
+
+2. PORT MANAGEMENT MATTERS
+   - Multiple apps can conflict on same ports
+   - Always verify which app is running where
+   - Document port assignments clearly
+
+3. TEXT PROCESSING IS COMPLEX
+   - Multiple encodings exist in the wild
+   - File type detection requires multiple strategies
+   - Graceful fallbacks are essential
+
+4. DEPENDENCY MANAGEMENT
+   - System Python restrictions can affect virtual environments
+   - Use proper Python module execution
+   - Test dependency installation thoroughly
+
+5. USER EXPERIENCE IMPROVEMENTS
+   - Clear feedback about file types
+   - Informative error messages
+   - Progress indicators for processing
+
+This learning log captures the key insights, challenges, and solutions discovered during the development of the Document Summary Application, including the recent multi-format support implementation, providing valuable knowledge for future projects and improvements.

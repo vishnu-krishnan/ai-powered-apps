@@ -2,9 +2,6 @@ RAG CHATBOT - DOCUMENT Q&A APPLICATION - LEARNING LOG
 =====================================================
 
 LEARNING SESSION: RAG Chatbot Development
-DATE: [Current Date]
-DURATION: [Development Period]
-PARTICIPANTS: [Development Team]
 
 TOPICS LEARNED:
 ==============

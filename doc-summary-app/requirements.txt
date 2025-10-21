@@ -3,3 +3,5 @@ transformers
 torch
 PyMuPDF
 nltk
+python-docx
+pandas

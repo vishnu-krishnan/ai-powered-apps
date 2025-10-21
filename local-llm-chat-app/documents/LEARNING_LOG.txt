@@ -2,9 +2,6 @@ LOCAL LLM CHAT APPLICATION - LEARNING LOG
 ==========================================
 
 LEARNING SESSION: Local LLM Chat Application Development
-DATE: [Current Date]
-DURATION: [Development Period]
-PARTICIPANTS: [Development Team]
 
 TOPICS LEARNED:
 ==============
