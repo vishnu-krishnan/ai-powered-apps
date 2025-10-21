@@ -280,13 +280,15 @@ def scrape_google_news(query: str, num_articles: int = 10) -> List[Dict]:
 def scrape_rss_feeds(query: str, num_articles: int = 10) -> List[Dict]:
     """Fallback method using RSS feeds when Google News scraping fails"""
     try:
-        # List of RSS feeds to try
+        # List of RSS feeds to try - prioritize search-specific feeds
         rss_feeds = [
             f"https://news.google.com/rss/search?q={query}&hl=en&gl=US&ceid=US%3Aen",
             "https://feeds.bbci.co.uk/news/rss.xml",
             "https://rss.cnn.com/rss/edition.rss",
             "https://feeds.reuters.com/reuters/topNews",
-            "https://feeds.npr.org/1001/rss.xml"
+            "https://feeds.npr.org/1001/rss.xml",
+            "https://feeds.foxnews.com/foxnews/latest",
+            "https://rss.cbc.ca/rss/topstories.xml"
         ]
         
         articles = []
@@ -295,12 +297,32 @@ def scrape_rss_feeds(query: str, num_articles: int = 10) -> List[Dict]:
             try:
                 feed = feedparser.parse(feed_url)
                 
-                for entry in feed.entries[:num_articles]:
+                for entry in feed.entries[:num_articles * 2]:  # Get more entries to filter
                     if len(articles) >= num_articles:
                         break
                         
                     # Extract article information
                     title = entry.get('title', 'No title')
+                    
+                    # Simple relevance filter - check if query terms appear in title or description
+                    query_terms = query.lower().split()
+                    title_lower = title.lower()
+                    description_lower = ""
+                    
+                    # Get description for filtering
+                    if hasattr(entry, 'summary') and entry.summary:
+                        desc_soup = BeautifulSoup(entry.summary, 'html.parser')
+                        description_lower = desc_soup.get_text().strip().lower()
+                    
+                    # Check relevance (at least one query term should match)
+                    is_relevant = any(term in title_lower or term in description_lower for term in query_terms)
+                    
+                    # For general feeds, be more lenient
+                    if not is_relevant and not feed_url.startswith('https://news.google.com'):
+                        is_relevant = True  # Accept all articles from general feeds
+                    
+                    if not is_relevant:
+                        continue
                     
                     # Better source extraction from RSS feeds
                     source = "Unknown source"
@@ -557,252 +579,224 @@ def summarize_news_articles(articles: List[Dict]) -> str:
         return f"Error generating summary: {str(e)}"
 
 # Main Streamlit App
-st.title("Global News Topic Tracker")
-st.markdown("**Scrape Google News and summarize trending topics using LLMs**")
+st.title("🌍 Global News Topic Tracker")
+st.markdown("**Search and analyze news from multiple sources with AI-powered summaries**")
 
 # Sidebar for configuration
 with st.sidebar:
-    st.header("⚙️ Configuration")
+    st.header("⚙️ Settings")
     
-    # News source is now fixed to Google News
-    news_source = "Google News"
-    st.info("📰 **News Source: Google News**")
-    
-    # Number of articles (optimized for better performance)
+    # Number of articles
     num_articles = st.slider(
         "Number of Articles",
         min_value=5,
-        max_value=15,
-        value=8,
-        help="Number of articles to fetch and analyze (reduced for better performance)"
+        max_value=20,
+        value=10,
+        help="Number of articles to fetch and analyze"
     )
     
     # Auto-refresh option
     auto_refresh = st.checkbox("Auto-refresh (30s)", value=False)
     
     # Show descriptions option
-    show_descriptions = st.checkbox("Show article descriptions", value=True, help="Display descriptions scraped from news sources")
+    show_descriptions = st.checkbox("Show article descriptions", value=True)
+    
+    st.markdown("---")
+    st.markdown("**💡 How to use:**")
+    st.markdown("1. Enter a topic in the search box")
+    st.markdown("2. Click 'Search News'")
+    st.markdown("3. View results and AI summary below")
     
     # Manual refresh button
-    if st.button("🔄 Refresh News"):
-        st.rerun()
-    
-    # Refresh trending topics button
-    if st.button("🔄 Refresh Trending Topics"):
-        if 'sidebar_trending_topics' in st.session_state:
-            del st.session_state.sidebar_trending_topics
-        st.success("Trending topics refreshed!")
-        st.rerun()
-
-# Dropdown at the top - always visible
-st.subheader("📰 Latest News")
-
-# Get trending topics - use cached version if available
-if 'trending_topics' not in st.session_state:
-    with st.spinner("🔍 Fetching trending topics..."):
-        st.session_state.trending_topics = get_trending_topics()
-
-trending_topics = st.session_state.trending_topics
-
-# Always show the Google News sections dropdown in a smaller format
-col_dropdown, col_spacer = st.columns([1, 2])  # Make dropdown smaller
-
-with col_dropdown:
-    if trending_topics and len(trending_topics) > 0:
-        # Use session state selected topic if available, otherwise use "Top stories"
-        default_topic = st.session_state.get('selected_topic', "Top stories")
-        if default_topic not in trending_topics:
-            default_topic = "Top stories"
+    if st.button("🔄 Refresh All"):
+        # Clear ALL session state variables
+        keys_to_clear = list(st.session_state.keys())
+        for key in keys_to_clear:
+            del st.session_state[key]
         
-        selected_topic = st.selectbox(
-            "Select News Section:",
-            trending_topics,
-            index=trending_topics.index(default_topic) if default_topic in trending_topics else 0,
-            help="Choose from Google News sections",
-            key="news_section_dropdown"
-        )
+        # Also clear Streamlit's internal caches
+        st.cache_data.clear()
+        st.cache_resource.clear()
         
-        # Clear search state when dropdown selection changes
-        if 'search_query' in st.session_state:
-            del st.session_state.search_query
-        if 'search_type' in st.session_state:
-            del st.session_state.search_type
-    else:
-        # Fallback to default options
-        default_options = ["Top stories", "Local news", "Picks for you", "For you", "Your topics", "Sources"]
-        selected_topic = st.selectbox(
-            "Select News Section:",
-            default_options,
-            help="Choose from Google News sections",
-            key="news_section_dropdown_fallback"
-        )
+        # Set a flag to show the cleared status
+        st.session_state['refresh_cleared'] = True
         
-        # Clear search state for fallback case too
-        if 'search_query' in st.session_state:
-            del st.session_state.search_query
-        if 'search_type' in st.session_state:
-            del st.session_state.search_type
-
-# Add refresh trending topics button and fetch news button
-col_btn1, col_btn2 = st.columns([1, 1])
-with col_btn1:
-    if st.button("🔄 Refresh Trending Topics"):
-        if 'trending_topics' in st.session_state:
-            del st.session_state.trending_topics
-        if 'sidebar_trending_topics' in st.session_state:
-            del st.session_state.sidebar_trending_topics
-        # Clear search state when refreshing
-        if 'search_query' in st.session_state:
-            del st.session_state.search_query
-        if 'search_type' in st.session_state:
-            del st.session_state.search_type
-        st.success("Trending topics refreshed!")
+        st.success("✅ Everything cleared! All caches and data reset.")
         st.rerun()
 
-with col_btn2:
-    col_fetch, col_clear = st.columns([1, 1])
-    with col_fetch:
-        fetch_news = st.button("📡 Fetch News")
-    with col_clear:
-        if st.button("🗑️ Clear Search"):
-            # Clear all search-related state
-            if 'search_query' in st.session_state:
-                del st.session_state.search_query
-            if 'search_type' in st.session_state:
-                del st.session_state.search_type
-            if 'auto_fetch' in st.session_state:
-                del st.session_state.auto_fetch
-            if 'current_summary' in st.session_state:
-                del st.session_state.current_summary
-            st.success("Search cleared!")
-            st.rerun()
-
-# Add comprehensive search interface
-st.markdown("---")
+# Main search interface - simplified
 st.subheader("🔍 Search News")
 
-# Create tabs for different search types
-search_tab1, search_tab2, search_tab3, search_tab4 = st.tabs(["📝 Topic Search", "🌍 Location Search", "📰 Source Search", "📂 Category Search"])
+# Simple search interface
+col_search, col_search_btn, col_clear_btn = st.columns([3, 1, 1])
 
-with search_tab1:
-    st.write("**Search by Topic or Keywords**")
-    topic_query = st.text_input("Enter topic or keywords:", placeholder="e.g., artificial intelligence, climate change, elections")
-    if st.button("🔍 Search Topics", key="search_topics"):
-        if topic_query:
-            st.session_state.search_query = topic_query
-            st.session_state.search_type = "topic"
-            st.session_state.auto_fetch = True
-            st.rerun()
+with col_search:
+    search_query = st.text_input(
+        "Enter your search topic:",
+        placeholder="e.g., artificial intelligence, climate change, elections, technology news",
+        key="main_search_input",
+        help="Search for any topic, location, or news source"
+    )
 
-with search_tab2:
-    st.write("**Search by Location**")
-    col_loc1, col_loc2 = st.columns([2, 1])
-    with col_loc1:
-        location_query = st.text_input("Enter location:", placeholder="e.g., New York, India, London")
-    with col_loc2:
-        location_preset = st.selectbox("Or select:", ["", "United States", "India", "United Kingdom", "Canada", "Australia"])
-        if location_preset:
-            location_query = location_preset
-    
-    if st.button("🌍 Search Location", key="search_location"):
-        if location_query:
-            st.session_state.search_query = location_query
-            st.session_state.search_type = "location"
-            st.session_state.auto_fetch = True
-            st.rerun()
+with col_search_btn:
+    search_clicked = st.button("🔍 Search", type="primary", use_container_width=True)
 
-with search_tab3:
-    st.write("**Search by News Source**")
-    col_src1, col_src2 = st.columns([2, 1])
-    with col_src1:
-        source_query = st.text_input("Enter news source:", placeholder="e.g., CNN, BBC, Reuters")
-    with col_src2:
-        source_preset = st.selectbox("Or select:", ["", "CNN", "BBC", "Reuters", "Associated Press", "The New York Times"])
-        if source_preset:
-            source_query = source_preset
-    
-    if st.button("📰 Search Source", key="search_source"):
-        if source_query:
-            st.session_state.search_query = source_query
-            st.session_state.search_type = "source"
-            st.session_state.auto_fetch = True
-            st.rerun()
+with col_clear_btn:
+    clear_search_clicked = st.button("🗑️ Clear", use_container_width=True)
 
-with search_tab4:
-    st.write("**Search by Category**")
-    col_cat1, col_cat2 = st.columns([2, 1])
-    with col_cat1:
-        category_query = st.text_input("Enter category:", placeholder="e.g., technology, sports, health")
-    with col_cat2:
-        category_preset = st.selectbox("Or select:", ["", "Technology", "Business", "Health", "Politics", "Sports", "Entertainment"])
-        if category_preset:
-            category_query = category_preset
-    
-    if st.button("📂 Search Category", key="search_category"):
-        if category_query:
-            st.session_state.search_query = category_query
-            st.session_state.search_type = "category"
-            st.session_state.auto_fetch = True
+# Quick search suggestions
+st.markdown("**💡 Quick searches:**")
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    if st.button("🤖 AI News", key="quick_ai"):
+        st.session_state.search_query = "artificial intelligence"
+        st.session_state.auto_fetch = True
+        # Clear the search input
+        if 'main_search_input' in st.session_state:
+            del st.session_state.main_search_input
         st.rerun()
+
+with col2:
+    if st.button("🌍 World News", key="quick_world"):
+        st.session_state.search_query = "world news"
+        st.session_state.auto_fetch = True
+        # Clear the search input
+        if 'main_search_input' in st.session_state:
+            del st.session_state.main_search_input
+        st.rerun()
+
+with col3:
+    if st.button("💼 Business", key="quick_business"):
+        st.session_state.search_query = "business news"
+        st.session_state.auto_fetch = True
+        # Clear the search input
+        if 'main_search_input' in st.session_state:
+            del st.session_state.main_search_input
+        st.rerun()
+
+with col4:
+    if st.button("🏥 Health", key="quick_health"):
+        st.session_state.search_query = "health news"
+        st.session_state.auto_fetch = True
+        # Clear the search input
+        if 'main_search_input' in st.session_state:
+            del st.session_state.main_search_input
+        st.rerun()
+
+# Handle search and clear
+if search_clicked and search_query:
+    st.session_state.search_query = search_query
+    st.session_state.search_type = "topic"
+    st.session_state.auto_fetch = True
+    st.rerun()
+
+if clear_search_clicked:
+    # Clear search-related session state
+    if 'search_query' in st.session_state:
+        del st.session_state.search_query
+    if 'search_type' in st.session_state:
+        del st.session_state.search_type
+    if 'auto_fetch' in st.session_state:
+        del st.session_state.auto_fetch
+    if 'current_summary' in st.session_state:
+        del st.session_state.current_summary
+    # Clear the search input
+    if 'main_search_input' in st.session_state:
+        del st.session_state.main_search_input
+    st.success("Search cleared!")
+    st.rerun()
+
+# Show status message if everything was cleared
+if 'refresh_cleared' in st.session_state:
+    st.info("🔄 All data cleared! Enter a new search topic to get fresh results.")
+    del st.session_state['refresh_cleared']
 
 # Main content area
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    # Fetch and display articles when button is clicked or auto-fetch is triggered
-    if fetch_news or auto_refresh or st.session_state.get('auto_fetch', False):
-        # Determine what to search for
-        if st.session_state.get('search_query') and st.session_state.get('search_type'):
-            # Use search functionality
-            search_query = st.session_state.search_query
-            search_type = st.session_state.search_type
-            with st.spinner(f"🔍 Searching {search_type}: '{search_query}'..."):
-                articles = search_news(search_query, search_type, num_articles)
-        else:
-            # Use regular dropdown selection
-            with st.spinner(f"📡 Fetching news about '{selected_topic}'..."):
-                articles = scrape_google_news(selected_topic, num_articles)
+    # Fetch and display articles when search is triggered
+    if st.session_state.get('auto_fetch', False) or st.session_state.get('search_query'):
+        # Get search query from session state
+        search_query = st.session_state.get('search_query', '')
+        search_type = st.session_state.get('search_type', 'topic')
         
-        if articles:
-            st.success(f"✅ Found {len(articles)} articles")
+        if search_query:
+            with st.spinner(f"🔍 Searching for '{search_query}'..."):
+                # Try multiple sources for better results
+                articles = []
+                
+                # First try Google News
+                try:
+                    articles = scrape_google_news(search_query, num_articles)
+                except Exception as e:
+                    st.warning(f"Google News search failed: {str(e)}")
+                
+                # If no articles from Google News, try RSS feeds
+                if not articles:
+                    try:
+                        articles = scrape_rss_feeds(search_query, num_articles)
+                    except Exception as e:
+                        st.warning(f"RSS feed search failed: {str(e)}")
+                
+                # If still no articles, try a broader search
+                if not articles:
+                    try:
+                        broader_query = f"{search_query} news"
+                        articles = scrape_rss_feeds(broader_query, num_articles)
+                    except Exception as e:
+                        st.error(f"All search methods failed: {str(e)}")
             
-            # Display articles
-            for i, article in enumerate(articles, 1):
-                with st.expander(f"📄 {i}. {article['title'][:80]}{'...' if len(article['title']) > 80 else ''}"):
-                    st.write(f"**📰 {article['source']}**")
-                    st.write(f"**🕒 {article['time']}**")
-                    st.write(f"**{article['title']}**")
-                    
-                    # Description
-                    if article['description'] and article['description'] != "Description not available from source":
-                        st.write(f"📝 {article['description']}")
-                    else:
-                        st.write("📝 *Description not available from source*")
-                    
-                    # Link to full article
-                    if article['link']:
-                        st.write(f"🔗 [Read full article]({article['link']})")
-            
-            # Generate summary and store in session state
-            with st.spinner("🧠 Generating AI summary..."):
-                summary = summarize_news_articles(articles)
-                st.session_state.current_summary = summary
-            
-        else:
-            st.warning("⚠️ No articles found. Try a different search query.")
-            st.session_state.current_summary = None
+            if articles:
+                st.success(f"✅ Found {len(articles)} articles about '{search_query}'")
+                
+                # Display articles
+                for i, article in enumerate(articles, 1):
+                    with st.expander(f"📄 {i}. {article['title'][:80]}{'...' if len(article['title']) > 80 else ''}"):
+                        st.write(f"**📰 Source:** {article['source']}")
+                        st.write(f"**🕒 Time:** {article['time']}")
+                        st.write(f"**{article['title']}**")
+                        
+                        # Description
+                        if article['description'] and article['description'] != "Description not available from source":
+                            st.write(f"📝 **Description:** {article['description']}")
+                        
+                        # Link to full article
+                        if article['link']:
+                            st.write(f"🔗 [Read full article]({article['link']})")
+                
+                # Generate summary and store in session state
+                with st.spinner("🧠 Generating AI summary..."):
+                    summary = summarize_news_articles(articles)
+                    st.session_state.current_summary = summary
+                
+                # Display AI Summary right after the articles
+                st.markdown("---")
+                st.subheader("🤖 AI-Powered Summary")
+                st.info(summary)
+                
+            else:
+                st.warning("⚠️ No articles found. Try a different search query or check your internet connection.")
+                st.session_state.current_summary = None
+                
+                # Show helpful suggestions
+                st.info("💡 **Try these suggestions:**")
+                st.markdown("- Use more general terms (e.g., 'technology' instead of 'quantum computing')")
+                st.markdown("- Check your internet connection")
+                st.markdown("- Try different keywords")
         
         # Clear the auto_fetch flag after processing
         if 'auto_fetch' in st.session_state:
             del st.session_state.auto_fetch
 
 with col2:
-    st.subheader("📊 News Analytics")
+    st.subheader("📊 Analytics & Trends")
     
-    # Display trending topics with visual representation
-    st.write("**🔥 Trending Topics:**")
+    # Show trending topics
+    st.markdown("**🔥 Trending Topics**")
     
-    # Always fetch real trending topics for the sidebar chart
+    # Get trending topics
     if 'sidebar_trending_topics' not in st.session_state:
         with st.spinner("Loading trending topics..."):
             st.session_state.sidebar_trending_topics = get_real_trending_topics()
@@ -810,61 +804,41 @@ with col2:
     trending_topics_sidebar = st.session_state.sidebar_trending_topics
     
     if trending_topics_sidebar and len(trending_topics_sidebar) > 0:
-        # Create a bar chart for trending topics (only show real topics)
-        display_topics = trending_topics_sidebar[:5]  # Show up to 5 real topics
-        
-        # Create DataFrame for visualization with actual number of topics
-        df_trending = pd.DataFrame({
-            'Topic': display_topics,
-            'Rank': range(1, len(display_topics) + 1),
-            'Popularity': [len(display_topics) - i for i in range(len(display_topics))]  # Higher rank = higher popularity
-        })
-        
-        # Create horizontal bar chart
-        fig = px.bar(df_trending, 
-                     x='Popularity', 
-                     y='Topic',
-                     orientation='h',
-                     title=f"Top {len(display_topics)} Trending Topics",
-                     color='Popularity',
-                     color_continuous_scale='Reds')
-        
-        fig.update_layout(
-            height=max(200, len(display_topics) * 50),  # Dynamic height based on number of topics
-            showlegend=False,
-            xaxis_title="Trending Score",
-            yaxis_title="Topics",
-            margin=dict(l=0, r=0, t=30, b=0)
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Show different clickable topics for exploration
-        st.write("**Click to explore:**")
-        explore_topics = get_explore_topics()
-        for i, topic in enumerate(explore_topics, 1):
-            if st.button(f"{i}. {topic}", key=f"explore_topic_{i}"):
-                # Update the selected topic and trigger news fetch
-                st.session_state.selected_topic = topic
-                st.session_state.auto_fetch = True  # Flag to auto-fetch news
-                # Clear search state when clicking explore topics
-                if 'search_query' in st.session_state:
-                    del st.session_state.search_query
-                if 'search_type' in st.session_state:
-                    del st.session_state.search_type
+        # Show trending topics as clickable buttons
+        for i, topic in enumerate(trending_topics_sidebar[:5], 1):
+            if st.button(f"{i}. {topic}", key=f"trending_topic_{i}", use_container_width=True):
+                st.session_state.search_query = topic
+                st.session_state.search_type = "topic"
+                st.session_state.auto_fetch = True
+                # Clear the search input
+                if 'main_search_input' in st.session_state:
+                    del st.session_state.main_search_input
                 st.rerun()
     else:
-        # Show message when no trending topics are available
-        st.info("📊 No trending topics available at the moment. Try refreshing or check back later.")
-        
-        # Show a simple message instead of generic fallback topics
-        st.write("**💡 Tip:** Click '🔄 Refresh Trending Topics' to get the latest trending topics from current news.")
+        st.info("📊 No trending topics available. Try searching for a topic!")
     
-    # Display AI Summary if available
-    if hasattr(st.session_state, 'current_summary') and st.session_state.current_summary:
-        st.markdown("---")
-        st.subheader("🤖 AI-Powered Summary")
-        st.info(st.session_state.current_summary)
+    st.markdown("---")
+    
+    # Show search suggestions
+    st.markdown("**💡 Popular Searches**")
+    popular_searches = [
+        "artificial intelligence",
+        "climate change", 
+        "technology news",
+        "business updates",
+        "health news",
+        "world politics"
+    ]
+    
+    for search_term in popular_searches:
+        if st.button(f"🔍 {search_term}", key=f"popular_{search_term}", use_container_width=True):
+            st.session_state.search_query = search_term
+            st.session_state.search_type = "topic"
+            st.session_state.auto_fetch = True
+            # Clear the search input
+            if 'main_search_input' in st.session_state:
+                del st.session_state.main_search_input
+            st.rerun()
     
     # Auto-refresh status
     if auto_refresh:
