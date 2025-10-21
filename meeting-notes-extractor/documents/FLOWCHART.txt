@@ -1,0 +1,415 @@
+MEETING NOTES & ACTION ITEM EXTRACTOR - FLOWCHART
+=================================================
+
+MAIN APPLICATION FLOW:
+======================
+
+┌─────────────────┐
+│   User Starts   │
+│   Application   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load Whisper   │
+│  Model          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display UI     │
+│  (Streamlit)    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Uploads   │
+│  Audio File     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate Audio │
+│  File           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process Audio  │
+│  with Whisper   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Transcription  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Analyze with   │
+│  GPT-3.5        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract Action │
+│  Items          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Results        │
+└─────────────────┘
+
+AUDIO PROCESSING FLOW:
+======================
+
+┌─────────────────┐
+│  Audio File     │
+│  Upload         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate File  │
+│  Format & Size  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Save to        │
+│  Temporary      │
+│  File           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load Whisper   │
+│  Model          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Transcribe     │
+│  Audio          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean Up       │
+│  Temporary      │
+│  File           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Transcription  │
+└─────────────────┘
+
+TRANSCRIPTION PROCESSING FLOW:
+==============================
+
+┌─────────────────┐
+│  Audio Data     │
+│  from File      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Whisper        │
+│  Processing     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate Raw   │
+│  Text           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean &        │
+│  Normalize      │
+│  Text           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate       │
+│  Transcription  │
+│  Quality        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return Clean   │
+│  Transcription  │
+└─────────────────┘
+
+CONTENT ANALYSIS FLOW:
+======================
+
+┌─────────────────┐
+│  Clean          │
+│  Transcription  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Text     │
+│  Length         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Text Length    │
+│  > Token Limit? │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Chunk  │ │ Process │
+│  Text   │ │ Directly│
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Process │ │ Send to │
+│ Chunks  │ │ GPT-3.5 │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Combine │ │ Analyze │
+│ Results │ │ Content │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Final   │ │ Extract │
+│ Analysis│ │ Structured│
+└────┬────┘ │ Data    │
+     │      └────┬────┘
+     ▼           │
+┌─────────┐      │
+│ Display │      │
+│ Results │      │
+└─────────┘      │
+                 ▼
+            ┌─────────┐
+            │ Display │
+            │ Results │
+            └─────────┘
+
+ACTION ITEM EXTRACTION FLOW:
+============================
+
+┌─────────────────┐
+│  Structured     │
+│  Meeting Data   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Analyze Text   │
+│  for Action     │
+│  Keywords       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Identify       │
+│  Task Patterns  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract        │
+│  Assignees      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Identify       │
+│  Deadlines      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Assess         │
+│  Priorities     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Structure      │
+│  Action Items   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate &     │
+│  Clean Data     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Action Items   │
+└─────────────────┘
+
+DATA EXPORT FLOW:
+=================
+
+┌─────────────────┐
+│  User Requests  │
+│  Export         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Collect All    │
+│  Meeting Data   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Structure      │
+│  Data for       │
+│  Export         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate JSON  │
+│  Format         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Create         │
+│  Downloadable   │
+│  File           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Provide        │
+│  Download Link  │
+└─────────────────┘
+
+ERROR HANDLING FLOW:
+====================
+
+┌─────────────────┐
+│  Process        │
+│  Operation      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Operation      │
+│  Successful?    │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Continue│ │ Log     │
+│ Normal  │ │ Error   │
+│ Flow    │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Check   │
+│ Results │ │ Error   │
+└─────────┘ │ Type    │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────────┐
+            │ API     │
+            │ Error?  │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────┴─────┐
+            │           │
+            ▼           ▼
+        ┌─────────┐ ┌─────────┐
+        │  Yes    │ │   No    │
+        │ Retry   │ │ Display │
+        │ Request │ │ Error   │
+        └────┬────┘ │ Message │
+             │      └─────────┘
+             ▼
+        ┌─────────┐
+        │ Success?│
+        └────┬────┘
+             │
+             ▼
+        ┌─────┴─────┐
+        │           │
+        ▼           ▼
+    ┌─────────┐ ┌─────────┐
+    │  Yes    │ │   No    │
+    │ Display │ │ Display │
+    │ Results │ │ Error   │
+    └─────────┘ └─────────┘
+
+SESSION MANAGEMENT FLOW:
+========================
+
+┌─────────────────┐
+│  User Starts    │
+│  New Session    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Session ID     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Initialize     │
+│  Session Data   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Uploads   │
+│  Audio File     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process &      │
+│  Store Results  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Exports   │
+│  or Clears      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean Up       │
+│  Session Data   │
+└─────────────────┘
+
+This flowchart provides a comprehensive visual representation of the Meeting Notes & Action Item Extractor's processing flow, including main application flow, audio processing, transcription, content analysis, action item extraction, data export, error handling, and session management processes.
