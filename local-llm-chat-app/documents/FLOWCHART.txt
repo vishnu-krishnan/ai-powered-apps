@@ -1,0 +1,428 @@
+LOCAL LLM CHAT APPLICATION - FLOWCHART
+======================================
+
+MAIN APPLICATION FLOW:
+======================
+
+┌─────────────────┐
+│   User Starts   │
+│   Application   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Start Ollama   │
+│  Server         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Start FastAPI  │
+│  Backend        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Start Streamlit│
+│  Frontend       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display Chat   │
+│  Interface      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Types     │
+│  Message        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Send to        │
+│  FastAPI        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Forward to     │
+│  Ollama         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return to      │
+│  User           │
+└─────────────────┘
+
+CHAT REQUEST FLOW:
+==================
+
+┌─────────────────┐
+│  User Input     │
+│  Message        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Streamlit      │
+│  Frontend       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  HTTP Request   │
+│  to FastAPI     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  FastAPI        │
+│  Backend        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate       │
+│  Request        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Get Session    │
+│  History        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Send to        │
+│  Ollama API     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Ollama         │
+│  Processing     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Update Session │
+│  History        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return to      │
+│  Frontend       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Response       │
+└─────────────────┘
+
+MODEL MANAGEMENT FLOW:
+======================
+
+┌─────────────────┐
+│  Application    │
+│  Startup        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Ollama   │
+│  Connection     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Ollama         │
+│  Available?     │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Get    │ │ Display │
+│ Models  │ │ Error   │
+└────┬────┘ └─────────┘
+     │
+     ▼
+┌─────────┐
+│  List   │
+│ Available│
+│ Models  │
+└────┬────┘
+     │
+     ▼
+┌─────────┐
+│  User   │
+│ Selects │
+│ Model   │
+└────┬────┘
+     │
+     ▼
+┌─────────┐
+│  Set    │
+│ Active  │
+│ Model   │
+└────┬────┘
+     │
+     ▼
+┌─────────┐
+│  Ready  │
+│  for    │
+│  Chat   │
+└─────────┘
+
+SESSION MANAGEMENT FLOW:
+========================
+
+┌─────────────────┐
+│  New User       │
+│  Session        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Session ID     │
+│  (UUID)         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Initialize     │
+│  Session        │
+│  Memory         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Store Session  │
+│  in Memory      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Sends     │
+│  Message        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Add to Session │
+│  History        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Continue       │
+│  Conversation   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Session        │
+│  Cleanup        │
+│  (Auto)         │
+└─────────────────┘
+
+ERROR HANDLING FLOW:
+====================
+
+┌─────────────────┐
+│  Process        │
+│  Request        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Request        │
+│  Successful?    │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Continue│ │ Log     │
+│ Normal  │ │ Error   │
+│ Flow    │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Check   │
+│ Response│ │ Error   │
+└─────────┘ │ Type    │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────────┐
+            │ Model   │
+            │ Error?  │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────┴─────┐
+            │           │
+            ▼           ▼
+        ┌─────────┐ ┌─────────┐
+        │  Yes    │ │   No    │
+        │ Try     │ │ Display │
+        │ Another │ │ Error   │
+        │ Model   │ │ Message │
+        └────┬────┘ └─────────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Retry   │
+        │ Request │
+        └────┬────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Success?│
+        └────┬────┘
+             │
+             ▼
+        ┌─────┴─────┐
+        │           │
+        ▼           ▼
+    ┌─────────┐ ┌─────────┐
+    │  Yes    │ │   No    │
+    │ Display │ │ Display │
+    │ Response│ │ Error   │
+    └─────────┘ └─────────┘
+
+OLLAMA COMMUNICATION FLOW:
+==========================
+
+┌─────────────────┐
+│  FastAPI        │
+│  Request        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Prepare        │
+│  Ollama         │
+│  Payload        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Send HTTP      │
+│  Request to     │
+│  Ollama         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Ollama         │
+│  Processing     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Stream         │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Parse          │
+│  JSON           │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract        │
+│  Text           │
+│  Content        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Response       │
+└─────────────────┘
+
+MODEL SWITCHING FLOW:
+=====================
+
+┌─────────────────┐
+│  User Requests  │
+│  Model Change   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check New      │
+│  Model          │
+│  Availability   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Model          │
+│  Available?     │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Switch  │ │ Display │
+│ Model   │ │ Error   │
+└────┬────┘ └─────────┘
+     │
+     ▼
+┌─────────┐
+│  Update │
+│  Active │
+│  Model  │
+└────┬────┘
+     │
+     ▼
+┌─────────┐
+│  Clear  │
+│  Session│
+│  History│
+└────┬────┘
+     │
+     ▼
+┌─────────┐
+│  Ready  │
+│  for    │
+│  New    │
+│  Model  │
+└─────────┘
+
+This flowchart provides a comprehensive visual representation of the Local LLM Chat Application's processing flow, including main application flow, chat requests, model management, session management, error handling, Ollama communication, and model switching processes.
