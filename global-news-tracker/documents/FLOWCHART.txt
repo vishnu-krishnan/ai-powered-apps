@@ -1,0 +1,404 @@
+GLOBAL NEWS TRACKER - FLOWCHART
+================================
+
+MAIN APPLICATION FLOW:
+======================
+
+┌─────────────────┐
+│   User Starts   │
+│   Application   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load AI Models │
+│  (BART/Pegasus) │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display UI     │
+│  (Streamlit)    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Selects   │
+│  News Topic     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Scrape Google  │
+│  News           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process &      │
+│  Clean Data     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate AI    │
+│  Summary        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Results        │
+└─────────────────┘
+
+NEWS SCRAPING FLOW:
+===================
+
+┌─────────────────┐
+│  User Query     │
+│  or Topic       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Construct      │
+│  Google News    │
+│  URL            │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Send HTTP      │
+│  Request        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Parse HTML     │
+│  with Beautiful │
+│  Soup           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract        │
+│  Article Data   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate &     │
+│  Clean Data     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Articles       │
+└─────────────────┘
+
+RSS FALLBACK FLOW:
+==================
+
+┌─────────────────┐
+│  Google News    │
+│  Scraping       │
+│  Failed         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Try RSS Feeds  │
+│  (BBC, CNN,     │
+│   Reuters)      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Parse RSS      │
+│  with Feedparser│
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract        │
+│  Article Data   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate &     │
+│  Clean Data     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Articles       │
+└─────────────────┘
+
+AI SUMMARIZATION FLOW:
+======================
+
+┌─────────────────┐
+│  Article List   │
+│  from Scraping  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Combine        │
+│  Article Text   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Clean &        │
+│  Preprocess     │
+│  Text           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Text     │
+│  Length         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Text Length    │
+│  > 1000 chars?  │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Chunk  │ │ Process │
+│  Text   │ │ Directly│
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Process │ │ Generate│
+│ Chunks  │ │ Summary │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Combine │ │ Display │
+│ Partial │ │ Results │
+│Summaries│ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Final   │ │ End     │
+│Summary  │ │         │
+└────┬────┘ └─────────┘
+     │
+     ▼
+┌─────────┐
+│ Display │
+│ Results │
+└─────────┘
+
+TREND ANALYSIS FLOW:
+====================
+
+┌─────────────────┐
+│  Scraped        │
+│  Articles       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Extract        │
+│  Headlines      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Analyze        │
+│  Keywords       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Calculate      │
+│  Trend Scores   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Rank Topics    │
+│  by Popularity  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Create         │
+│  Visualization  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Trend Chart    │
+└─────────────────┘
+
+ERROR HANDLING FLOW:
+====================
+
+┌─────────────────┐
+│  Process        │
+│  Operation      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Operation      │
+│  Successful?    │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Continue│ │ Log     │
+│ Normal  │ │ Error   │
+│ Flow    │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Check   │
+│ Results │ │ Fallback│
+└─────────┘ │ Option  │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────────┐
+            │ Fallback│
+            │Available│
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────┴─────┐
+            │           │
+            ▼           ▼
+        ┌─────────┐ ┌─────────┐
+        │  Yes    │ │   No    │
+        │  Use    │ │ Display │
+        │Fallback │ │ Error   │
+        └────┬────┘ │ Message │
+             │      └─────────┘
+             ▼
+        ┌─────────┐
+        │ Continue│
+        │ Process │
+        └────┬────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Display │
+        │ Results │
+        └─────────┘
+
+CACHING STRATEGY FLOW:
+======================
+
+┌─────────────────┐
+│  User Request   │
+│  for News       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Cache    │
+│  for Existing   │
+│  Data           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Cache Hit?     │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Return  │ │ Scrape  │
+│ Cached  │ │ Fresh   │
+│ Data    │ │ Data    │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Update  │
+│ Results │ │ Cache   │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ End     │ │ Display │
+│         │ │ Results │
+└─────────┘ └─────────┘
+
+AUTO-REFRESH FLOW:
+==================
+
+┌─────────────────┐
+│  Auto-refresh   │
+│  Enabled        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Wait 30        │
+│  Seconds        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check for      │
+│  New Articles   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  New Articles   │
+│  Found?         │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Update  │ │ Continue│
+│ Display │ │ Waiting │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Wait 30 │
+│ Updated │ │ Seconds │
+│ Results │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ End     │ │ Repeat  │
+│         │ │ Cycle   │
+└─────────┘ └─────────┘
+
+This flowchart provides a comprehensive visual representation of the Global News Tracker's processing flow, including main application flow, news scraping, RSS fallback, AI summarization, trend analysis, error handling, caching strategy, and auto-refresh mechanisms.
