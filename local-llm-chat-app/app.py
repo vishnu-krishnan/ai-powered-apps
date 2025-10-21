@@ -101,8 +101,13 @@ def start_fastapi_server():
     uvicorn.run(fastapi_app, host="127.0.0.1", port=8000, log_level="info")
 
 # 📄 Streamlit config
-st.set_page_config(page_title="🧠 Chat with AI", layout="centered")
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🤖 Let's Chat</h1>", unsafe_allow_html=True)
+st.set_page_config(
+    page_title="Buddy AI", 
+    page_icon="😊", 
+    layout="centered"
+)
+st.markdown("<h1 style='text-align: center; color: #2E8B57; font-family: Arial, sans-serif; margin-bottom: 10px;'>Hi there! I'm Buddy AI</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666; font-size: 16px; margin-top: 0;'>Your Private Local AI Companion</p>", unsafe_allow_html=True)
 
 # 🧠 Session state setup
 if "session_id" not in st.session_state:
@@ -140,7 +145,7 @@ default_index = model_options.index(default_model) if default_model in model_opt
 
 # 🎛️ Sidebar
 with st.sidebar:
-    st.subheader("🧠 Choose Model")
+    st.subheader("Choose LLM Model")
     st.session_state.selected_model = st.selectbox(
         "Model",
         options=model_options,
