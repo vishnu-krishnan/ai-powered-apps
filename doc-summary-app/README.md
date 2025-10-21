@@ -32,8 +32,8 @@ A powerful AI-powered document summarization tool that extracts text from PDF do
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd doc-summary-app
+   git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+   cd ai-powered-apps/doc-summary-app
    ```
 
 2. **Create virtual environment**

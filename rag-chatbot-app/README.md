@@ -106,8 +106,8 @@ User Query → Vector Search → Context Retrieval → LLM Processing → Respon
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd rag-chatbot-app
+git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+cd ai-powered-apps/rag-chatbot-app
 ```
 
 ### Step 2: Create Virtual Environment

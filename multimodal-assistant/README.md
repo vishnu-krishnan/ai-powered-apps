@@ -128,8 +128,8 @@ The Multi-Modal Assistant is a web-based application that combines text and imag
 
 2. **Clone and Setup**
    ```bash
-   git clone <repository-url>
-   cd multimodal-assistant
+   git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+   cd ai-powered-apps/multimodal-assistant
    python -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt

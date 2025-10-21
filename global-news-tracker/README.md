@@ -84,8 +84,8 @@ The Global News Topic Tracker is a web-based application that automatically scra
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd global-news-tracker
+   git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+   cd ai-powered-apps/global-news-tracker
    ```
 
 2. **Create virtual environment**

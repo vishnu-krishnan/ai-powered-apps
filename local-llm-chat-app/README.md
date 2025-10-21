@@ -63,8 +63,8 @@ Make sure the following are installed on your system:
 ### 2. 📦 Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/local-llm-chat-app.git
-cd local-llm-chat-app
+git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+cd ai-powered-apps/local-llm-chat-app
 ```
 
 ---

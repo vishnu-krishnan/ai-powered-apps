@@ -76,8 +76,8 @@ This repository contains five distinct AI applications, each designed to solve s
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd LLM
+   git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+   cd ai-powered-apps
    ```
 
 2. **Choose an application to run**
@@ -229,14 +229,15 @@ Each application has its own virtual environment and requirements. Follow the in
 
 ### Project Structure
 ```
-LLM/
+ai-powered-apps/
 ├── doc-summary-app/          # Document summarization application
 ├── local-llm-chat-app/       # Local LLM chat application
 ├── global-news-tracker/      # News tracking application
 ├── multimodal-assistant/      # Multi-modal AI assistant
 ├── meeting-notes-extractor/  # Meeting audio processing application
 ├── rag-chatbot-app/          # RAG document Q&A application
-└── README.md                 # This file
+├── README.md                 # This file
+└── .gitignore                # Git ignore rules
 ```
 
 ### Contributing Guidelines

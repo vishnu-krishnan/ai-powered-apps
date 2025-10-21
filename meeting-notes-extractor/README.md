@@ -151,8 +151,8 @@ The Meeting Notes & Action Item Extractor is an AI-powered application that auto
 
 2. **Clone and Setup**
    ```bash
-   git clone <repository-url>
-   cd meeting-notes-extractor
+   git clone https://github.com/vishnu-krishnan/ai-powered-apps.git
+   cd ai-powered-apps/meeting-notes-extractor
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
