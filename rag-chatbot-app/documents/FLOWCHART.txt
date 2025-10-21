@@ -1,0 +1,442 @@
+RAG CHATBOT - DOCUMENT Q&A APPLICATION - FLOWCHART
+==================================================
+
+MAIN APPLICATION FLOW:
+======================
+
+┌─────────────────┐
+│   User Starts   │
+│   Application   │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Initialize     │
+│  ChromaDB       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load Embedding │
+│  Model          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display UI     │
+│  (Streamlit)    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Uploads   │
+│  Documents      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process        │
+│  Documents      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Create Vector  │
+│  Database       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Asks      │
+│  Question       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Retrieve       │
+│  Relevant Docs  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Display        │
+│  Answer         │
+└─────────────────┘
+
+DOCUMENT PROCESSING FLOW:
+=========================
+
+┌─────────────────┐
+│  Document       │
+│  Upload         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate File  │
+│  Format         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Detect         │
+│  Document Type  │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  PDF    │ │  DOCX   │
+│  Loader │ │  Loader │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Extract │ │ Extract │
+│ Text    │ │ Text    │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Clean & │ │ Clean & │
+│ Process │ │ Process │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Split   │ │ Split   │
+│ into    │ │ into    │
+│ Chunks  │ │ Chunks  │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Generate│ │ Generate│
+│ Embeddings│ │ Embeddings│
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Store in│ │ Store in│
+│ Vector  │ │ Vector  │
+│ DB      │ │ DB      │
+└─────────┘ └─────────┘
+
+VECTOR SEARCH FLOW:
+===================
+
+┌─────────────────┐
+│  User Query     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process Query  │
+│  Text           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate Query │
+│  Embedding      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Search Vector  │
+│  Database       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Retrieve       │
+│  Similar        │
+│  Documents      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Rank by        │
+│  Similarity     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Select Top     │
+│  Results        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Context        │
+└─────────────────┘
+
+RAG GENERATION FLOW:
+====================
+
+┌─────────────────┐
+│  Retrieved      │
+│  Context        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Combine Query  │
+│  and Context    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Create Prompt  │
+│  for LLM        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Send to        │
+│  Local LLM      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  LLM            │
+│  Processing     │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Validate       │
+│  Response       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Return         │
+│  Answer         │
+└─────────────────┘
+
+CHUNKING STRATEGY FLOW:
+=======================
+
+┌─────────────────┐
+│  Document       │
+│  Text           │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Check Text     │
+│  Length         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Text Length    │
+│  > Chunk Size?  │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│  Split  │ │  Use    │
+│  Text   │ │  As-Is  │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Create  │ │ Create  │
+│ Multiple│ │ Single  │
+│ Chunks  │ │ Chunk   │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Add     │ │ Add     │
+│ Overlap │ │ Metadata│
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Store   │ │ Store   │
+│ Chunks  │ │ Chunk   │
+└─────────┘ └─────────┘
+
+EMBEDDING GENERATION FLOW:
+==========================
+
+┌─────────────────┐
+│  Text Chunks    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Load Embedding │
+│  Model          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process Each   │
+│  Chunk          │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Generate       │
+│  Embedding      │
+│  Vector         │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Store in       │
+│  ChromaDB       │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Add Metadata   │
+│  and Index      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Ready for      │
+│  Search         │
+└─────────────────┘
+
+ERROR HANDLING FLOW:
+====================
+
+┌─────────────────┐
+│  Process        │
+│  Operation      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Operation      │
+│  Successful?    │
+└─────────┬───────┘
+          │
+          ▼
+    ┌─────┴─────┐
+    │           │
+    ▼           ▼
+┌─────────┐ ┌─────────┐
+│  Yes    │ │   No    │
+│ Continue│ │ Log     │
+│ Normal  │ │ Error   │
+│ Flow    │ │         │
+└────┬────┘ └────┬────┘
+     │           │
+     ▼           ▼
+┌─────────┐ ┌─────────┐
+│ Display │ │ Check   │
+│ Results │ │ Error   │
+└─────────┘ │ Type    │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────────┐
+            │ Model   │
+            │ Error?  │
+            └────┬────┘
+                 │
+                 ▼
+            ┌─────┴─────┐
+            │           │
+            ▼           ▼
+        ┌─────────┐ ┌─────────┐
+        │  Yes    │ │   No    │
+        │ Try     │ │ Display │
+        │ Another │ │ Error   │
+        │ Model   │ │ Message │
+        └────┬────┘ └─────────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Retry   │
+        │ Request │
+        └────┬────┘
+             │
+             ▼
+        ┌─────────┐
+        │ Success?│
+        └────┬────┘
+             │
+             ▼
+        ┌─────┴─────┐
+        │           │
+        ▼           ▼
+    ┌─────────┐ ┌─────────┐
+    │  Yes    │ │   No    │
+    │ Display │ │ Display │
+    │ Response│ │ Error   │
+    └─────────┘ └─────────┘
+
+SESSION MANAGEMENT FLOW:
+========================
+
+┌─────────────────┐
+│  User Starts    │
+│  New Session    │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Initialize     │
+│  Session State  │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Uploads   │
+│  Documents      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Process &      │
+│  Store in       │
+│  Vector DB      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  User Asks      │
+│  Questions      │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Store Query    │
+│  History        │
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  Session        │
+│  Cleanup        │
+│  (Auto)         │
+└─────────────────┘
+
+This flowchart provides a comprehensive visual representation of the RAG Chatbot's processing flow, including main application flow, document processing, vector search, RAG generation, chunking strategy, embedding generation, error handling, and session management processes.
